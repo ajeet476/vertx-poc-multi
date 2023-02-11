@@ -1,5 +1,9 @@
 package io.ajeet.poc.api
 
+import io.ajeet.poc.api.controller.TokenController
+import io.ajeet.poc.api.controller.UserController
+import io.ajeet.poc.api.service.TokenService
+import io.ajeet.poc.api.service.UserService
 import io.ajeet.poc.common.kafka.KafkaPublisher
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
@@ -22,20 +26,29 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
         val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
     }
 
+    private val kafkaPublisher by lazy { KafkaPublisher(this.vertx) }
+    private val tokenService by lazy { TokenService(this.kafkaPublisher) }
+    private val tokenController by lazy { TokenController(this.tokenService) }
+    private val userService by lazy { UserService() }
+    private val userController by lazy { UserController(this.userService) }
+
     override suspend fun start() {
-        val router = Router.router(vertx)
-        val kafkaPublisher = KafkaPublisher(vertx)
-
-        router.post("/users")
-            .coroutineHandler { ctx ->
-                kafkaPublisher.publish("poc-topic", "...sending...")
-                ctx.end("Hello from coroutine handler")
-            }
-
         vertx.createHttpServer()
-            .requestHandler(router)
+            .requestHandler(router())
             .listen(8888)
             .await()
+    }
+
+    private fun router(): Router {
+        val router = Router.router(vertx)
+
+        router.post("/token")
+            .coroutineHandler { ctx -> tokenController.generateToken(ctx) }
+
+        router.get("/users/:id")
+            .coroutineHandler { ctx -> userController.findUser(ctx) }
+
+        return router
     }
 
     private fun Route.coroutineHandler(handler: suspend (RoutingContext) -> (Unit)): Route = handler { ctx ->

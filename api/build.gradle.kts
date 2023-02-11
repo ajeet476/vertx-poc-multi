@@ -1,9 +1,11 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.ajeet.plugin.Libraries
+import java.time.Duration
 
 plugins {
     application
     id("com.github.johnrengelman.shadow")
+    id("com.avast.gradle.docker-compose")
 }
 
 dependencies {
@@ -24,4 +26,10 @@ dependencies {
 tasks.withType<ShadowJar> {
     archiveClassifier.set("fat")
     mergeServiceFiles()
+}
+
+dockerCompose {
+    useComposeFiles.add("$rootDir/mocks/docker-compose.yaml")
+    waitForHealthyStateTimeout.set(Duration.ofSeconds(30))
+    isRequiredBy(tasks.getByName("test"))
 }

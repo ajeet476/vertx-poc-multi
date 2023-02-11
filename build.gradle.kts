@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.7.21"
     id("com.github.johnrengelman.shadow") version "7.0.0" apply false
+    id("com.avast.gradle.docker-compose") version "0.16.11" apply false
 }
 
 buildscript {
