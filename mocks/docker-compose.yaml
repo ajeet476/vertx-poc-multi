@@ -1,5 +1,3 @@
-
-
 version: "3.2"
 
 services:
@@ -37,10 +35,9 @@ services:
     image: bitnami/cassandra:4.1
     container_name: cassandra
     ports:
-      - '7000:7000'
-      - '9042:9042'
+      - "9042:9042"
     volumes:
-      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./schema.cql:/docker-entrypoint-initdb.d/schema.cql
     environment:
       CASSANDRA_SEEDS: cassandra
       CASSANDRA_PASSWORD_SEEDER: "yes"

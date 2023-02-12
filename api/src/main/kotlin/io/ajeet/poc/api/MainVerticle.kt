@@ -4,6 +4,7 @@ import io.ajeet.poc.api.controller.TokenController
 import io.ajeet.poc.api.controller.UserController
 import io.ajeet.poc.api.service.TokenService
 import io.ajeet.poc.api.service.UserService
+import io.ajeet.poc.common.config.KafkaConfigs
 import io.ajeet.poc.common.kafka.KafkaPublisher
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
@@ -26,7 +27,8 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
         val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
     }
 
-    private val kafkaPublisher by lazy { KafkaPublisher(this.vertx) }
+    private val kafkaConfigs by lazy { KafkaConfigs() }
+    private val kafkaPublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
     private val tokenService by lazy { TokenService(this.kafkaPublisher) }
     private val tokenController by lazy { TokenController(this.tokenService) }
     private val userService by lazy { UserService() }
