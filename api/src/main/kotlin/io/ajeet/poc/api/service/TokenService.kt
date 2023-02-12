@@ -1,5 +1,6 @@
 package io.ajeet.poc.api.service
 
+import io.ajeet.poc.api.MainVerticle
 import io.ajeet.poc.api.controller.Token
 import io.ajeet.poc.api.controller.TokenDto
 import io.ajeet.poc.api.controller.UserDto
@@ -9,6 +10,10 @@ import java.time.Instant
 import kotlin.random.Random
 
 class TokenService(private val kafkaPublisher: KafkaPublisher) {
+    constructor(app: MainVerticle) : this(
+        app.kafkaPublisher
+    )
+
     fun generateToken(user: UserDto) : TokenDto {
         val refreshTokenValue = JsonObject.of()
             .put("id", user.id)

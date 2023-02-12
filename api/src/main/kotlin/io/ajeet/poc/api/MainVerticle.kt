@@ -4,6 +4,7 @@ import io.ajeet.poc.api.controller.TokenController
 import io.ajeet.poc.api.controller.UserController
 import io.ajeet.poc.api.service.TokenService
 import io.ajeet.poc.api.service.UserService
+import io.ajeet.poc.common.config.CassandraConfigs
 import io.ajeet.poc.common.config.KafkaConfigs
 import io.ajeet.poc.common.kafka.KafkaPublisher
 import io.ajeet.poc.common.tracing.SpanElement
@@ -27,12 +28,18 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
         val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
     }
 
+    // configs : private mostly
     private val kafkaConfigs by lazy { KafkaConfigs() }
-    private val kafkaPublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
-    private val tokenService by lazy { TokenService(this.kafkaPublisher) }
-    private val tokenController by lazy { TokenController(this.tokenService) }
-    private val userService by lazy { UserService() }
-    private val userController by lazy { UserController(this.userService) }
+    private val cassandraConfigs by lazy { CassandraConfigs() }
+
+    // services : public (for custom IOC)
+    val kafkaPublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
+    val tokenService by lazy { TokenService(this) }
+    val userService by lazy { UserService() }
+
+    // controllers: always private
+    private val tokenController by lazy { TokenController(this) }
+    private val userController by lazy { UserController(this) }
 
     override suspend fun start() {
         vertx.createHttpServer()
