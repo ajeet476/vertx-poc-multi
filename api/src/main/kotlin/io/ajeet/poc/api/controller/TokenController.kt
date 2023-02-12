@@ -11,7 +11,7 @@ class TokenController(private val tokenService: TokenService) {
         app.tokenService
     )
 
-    fun generateToken(ctx: RoutingContext) {
+    suspend fun generateToken(ctx: RoutingContext) {
         val user = UserDto(UUID.randomUUID(), "@todo")
         val tokenDto = this.tokenService.generateToken(user)
 

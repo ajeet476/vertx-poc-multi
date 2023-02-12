@@ -4,13 +4,16 @@ import io.ajeet.poc.api.controller.TokenController
 import io.ajeet.poc.api.controller.UserController
 import io.ajeet.poc.api.service.TokenService
 import io.ajeet.poc.api.service.UserService
+import io.ajeet.poc.common.cassandra.CassandraDao
 import io.ajeet.poc.common.config.CassandraConfigs
 import io.ajeet.poc.common.config.KafkaConfigs
 import io.ajeet.poc.common.kafka.KafkaPublisher
+import io.ajeet.poc.common.kafka.MessagePublisher
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
 import io.opentracing.Span
 import io.opentracing.Tracer
+import io.vertx.cassandra.CassandraClient
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -32,10 +35,13 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
     private val kafkaConfigs by lazy { KafkaConfigs() }
     private val cassandraConfigs by lazy { CassandraConfigs() }
 
+    // database client
+    val cassandraClient: CassandraClient by lazy { CassandraDao(this.vertx, cassandraConfigs).getClient() }
+
     // services : public (for custom IOC)
-    val kafkaPublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
+    val kafkaPublisher: MessagePublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
     val tokenService by lazy { TokenService(this) }
-    val userService by lazy { UserService() }
+    val userService by lazy { UserService(this) }
 
     // controllers: always private
     private val tokenController by lazy { TokenController(this) }

@@ -12,12 +12,13 @@ class UserController(private val userService: UserService) {
         app.userService
     )
 
-    fun findUser(ctx: RoutingContext) {
+    suspend fun findUser(ctx: RoutingContext) {
         ctx.pathParam("id")?.let {
             UUID.fromString(it)
-        }?.let {
-            val user = this.userService.findUser(it)
-            ctx.end(JsonMapper.convert(user))
+        }?.let { id ->
+            this.userService.findUser(id)?.let {
+                ctx.end(JsonMapper.convert(it))
+            }
         }
 
         ctx.response().setStatusCode(404).end()
