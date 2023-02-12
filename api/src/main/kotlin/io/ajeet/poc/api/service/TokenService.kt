@@ -9,6 +9,8 @@ import io.ajeet.poc.common.kafka.MessagePublisher
 import io.vertx.cassandra.CassandraClient
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.coroutines.await
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 import kotlin.random.Random
@@ -18,6 +20,10 @@ class TokenService(private val kafkaPublisher: MessagePublisher, private val dat
         kafkaPublisher = app.kafkaPublisher,
         databaseClient = app.cassandraClient
     )
+
+    companion object {
+        val LOG: Logger = LoggerFactory.getLogger(TokenService::class.java)
+    }
 
     suspend fun generateToken(user: UserDto) : TokenDto {
         val refreshTokenValue = saveToken(user).toString()
@@ -48,7 +54,10 @@ class TokenService(private val kafkaPublisher: MessagePublisher, private val dat
             .addNamedValue("added_date", Instant.now())
             .addNamedValue("token_data", refreshTokenValue)
             .build()
-        this.databaseClient.execute(statement).await()
+        this.databaseClient.execute(statement)
+            .onSuccess { LOG.info("response {}", it) }
+            .onFailure { LOG.warn("failed", it)}
+            .await()
 
         return token
     }
