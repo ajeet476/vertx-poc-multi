@@ -25,7 +25,7 @@ object UserTokenTable {
     enum class Fields {
         userid,
         token,
-        added_date,
+        created_date,
         token_data
     }
 }

@@ -1,12 +1,12 @@
 package io.ajeet.poc.api.service
 
-import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import io.ajeet.poc.api.MainVerticle
 import io.ajeet.poc.api.controller.Token
 import io.ajeet.poc.api.controller.TokenDto
 import io.ajeet.poc.api.controller.UserDto
 import io.ajeet.poc.common.kafka.MessagePublisher
-import io.vertx.cassandra.CassandraClient
+import io.ajeet.poc.common.repository.UserTokenRepository
+import io.ajeet.poc.common.repository.model.UserTokenRecord
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.coroutines.await
 import org.slf4j.Logger
@@ -15,14 +15,14 @@ import java.time.Instant
 import java.util.*
 import kotlin.random.Random
 
-class TokenService(private val kafkaPublisher: MessagePublisher, private val databaseClient: CassandraClient) {
+class TokenService(private val kafkaPublisher: MessagePublisher, private val tokenRepository: UserTokenRepository) {
     constructor(app: MainVerticle) : this(
         kafkaPublisher = app.kafkaPublisher,
-        databaseClient = app.cassandraClient
+        tokenRepository = app.userTokenRepository
     )
 
     companion object {
-        val LOG: Logger = LoggerFactory.getLogger(TokenService::class.java)
+        private val LOG: Logger = LoggerFactory.getLogger(TokenService::class.java)
     }
 
     suspend fun generateToken(user: UserDto) : TokenDto {
@@ -38,25 +38,15 @@ class TokenService(private val kafkaPublisher: MessagePublisher, private val dat
 
     private suspend fun saveToken(user: UserDto) : UUID {
         val token = UUID.randomUUID()
-        val refreshTokenValue = JsonObject.of()
+
+        val tokenRecord = UserTokenRecord(user.id)
+        tokenRecord.token = token
+        tokenRecord.tokenData = JsonObject.of()
             .put("name", user.name)
             .put("loggedInAt", Instant.now())
             .toString()
 
-        val query = """
-            INSERT INTO user_login_tokens(userid, token, added_date, token_data)
-             VALUES(:userid, :token, :added_date, :token_data)
-        """.trimIndent()
-
-        val statement : SimpleStatement = SimpleStatement.builder(query)
-            .addNamedValue("userid", user.id)
-            .addNamedValue("token", token)
-            .addNamedValue("added_date", Instant.now())
-            .addNamedValue("token_data", refreshTokenValue)
-            .build()
-        this.databaseClient.execute(statement)
-            .onSuccess { LOG.info("response {}", it) }
-            .onFailure { LOG.warn("failed", it)}
+        this.tokenRepository.saveToken(tokenRecord)
             .await()
 
         return token

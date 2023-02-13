@@ -5,5 +5,5 @@ import io.vertx.core.Future
 import java.util.*
 
 interface UserRepository {
-    fun getUser(id: UUID): Future<UserRecord>?
+    fun getUser(id: UUID): Future<UserRecord?>
 }

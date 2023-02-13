@@ -8,7 +8,7 @@ import java.util.*
 class UserService(private val userRepository: UserRepository) {
 
     suspend fun findUser(id: UUID) : UserDto? {
-       return this.userRepository.getUser(id)?.await()?.let {
+       return this.userRepository.getUser(id).await()?.let {
             UserDto(it.userid, it.lastname)
         }
     }

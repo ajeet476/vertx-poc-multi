@@ -28,7 +28,7 @@ CREATE TABLE users (
 CREATE TABLE user_login_tokens (
    userid uuid,
    token uuid,
-   added_date timestamp,
+   created_date timestamp,
    token_data text,
    PRIMARY KEY (userid, token)
 ) WITH CLUSTERING ORDER BY (added_date DESC);

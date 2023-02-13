@@ -10,7 +10,9 @@ import io.ajeet.poc.common.config.KafkaConfigs
 import io.ajeet.poc.common.kafka.KafkaPublisher
 import io.ajeet.poc.common.kafka.MessagePublisher
 import io.ajeet.poc.common.repository.UserRepository
+import io.ajeet.poc.common.repository.UserTokenRepository
 import io.ajeet.poc.common.repository.impl.CassandraUserRepository
+import io.ajeet.poc.common.repository.impl.CassandraUserTokenRepository
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
 import io.opentracing.Span
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory
 class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
 
     companion object {
-        val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
+        private val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
     }
 
     // configs : private mostly
@@ -38,9 +40,10 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
     private val cassandraConfigs by lazy { CassandraConfigs() }
 
     // database client
-    val cassandraClient: CassandraClient by lazy { CassandraDao(this.vertx, cassandraConfigs).getClient() }
+    private val cassandraClient: CassandraClient by lazy { CassandraDao(this.vertx, cassandraConfigs).getClient() }
     // repository
     private val userRepository: UserRepository by lazy { CassandraUserRepository(this.cassandraClient) }
+    val userTokenRepository: UserTokenRepository by lazy { CassandraUserTokenRepository(this.cassandraClient) }
 
     // services : public (for custom IOC)
     val kafkaPublisher: MessagePublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
