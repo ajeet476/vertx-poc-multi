@@ -29,7 +29,11 @@ tasks.withType<ShadowJar> {
 }
 
 dockerCompose {
-    useComposeFiles.add("$rootDir/mocks/docker-compose.yaml")
+    useComposeFiles.addAll(
+        "$rootDir/mocks/docker-compose.yaml",
+        "$rootDir/mocks/docker-compose-kafka.yaml",
+        "$rootDir/mocks/docker-compose-tracing.yaml"
+    )
     waitForHealthyStateTimeout.set(Duration.ofSeconds(30))
     isRequiredBy(tasks.getByName("test"))
 }
