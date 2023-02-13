@@ -9,6 +9,8 @@ import io.ajeet.poc.common.config.CassandraConfigs
 import io.ajeet.poc.common.config.KafkaConfigs
 import io.ajeet.poc.common.kafka.KafkaPublisher
 import io.ajeet.poc.common.kafka.MessagePublisher
+import io.ajeet.poc.common.repository.UserRepository
+import io.ajeet.poc.common.repository.impl.CassandraUserRepository
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
 import io.opentracing.Span
@@ -37,11 +39,13 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
 
     // database client
     val cassandraClient: CassandraClient by lazy { CassandraDao(this.vertx, cassandraConfigs).getClient() }
+    // repository
+    private val userRepository: UserRepository by lazy { CassandraUserRepository(this.cassandraClient) }
 
     // services : public (for custom IOC)
     val kafkaPublisher: MessagePublisher by lazy { KafkaPublisher(this.vertx, kafkaConfigs) }
     val tokenService by lazy { TokenService(this) }
-    val userService by lazy { UserService(this) }
+    val userService by lazy { UserService(this.userRepository) }
 
     // controllers: always private
     private val tokenController by lazy { TokenController(this) }
