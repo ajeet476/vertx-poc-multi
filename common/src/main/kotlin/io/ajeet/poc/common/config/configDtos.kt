@@ -3,6 +3,8 @@ package io.ajeet.poc.common.config
 class CassandraConfigs {
     var contactPoints: Map<String, Int> = mapOf()
     var keyspace: String = "my_keyspace"
+    var username: String = "cassandra"
+    var password: String = "cassandra"
 }
 
 class KafkaConfigs {

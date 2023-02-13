@@ -1,14 +1,28 @@
 version: "3.2"
 
 services:
+  # Note: cassandra takes a lot of time for startup
   database:
     image: bitnami/cassandra:4.1
     container_name: cassandra
     ports:
       - "9042:9042"
     volumes:
+      - 'cassandra_data:/bitnami'
       - ./schema.cql:/docker-entrypoint-initdb.d/schema.cql
     environment:
-      CASSANDRA_SEEDS: cassandra
+      CASSANDRA_SEEDS: database
       CASSANDRA_PASSWORD_SEEDER: "yes"
       CASSANDRA_PASSWORD: cassandra
+      BITNAMI_DEBUG: "true"
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 256M
+#      JVM_OPTS: -Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0
+#    healthcheck:
+#      test: [ "CMD", "/opt/bitnami/cassandra/bin/cqlsh", "-u cassandra", "-p cassandra" ,"-e \"describe keyspaces\"" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 10
+
+volumes:
+  cassandra_data:

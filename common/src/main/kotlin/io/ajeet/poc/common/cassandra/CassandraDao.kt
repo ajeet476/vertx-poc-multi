@@ -12,6 +12,8 @@ class CassandraDao(vertx: Vertx, configs: CassandraConfigs) {
         val options = CassandraClientOptions().apply {
             configs.contactPoints.forEach { (host, port) -> addContactPoint(host, port) }
             keyspace = configs.keyspace
+            password = configs.password
+            username = configs.username
         }
         client = CassandraClient.createShared(vertx, "sharedClient", options)
     }

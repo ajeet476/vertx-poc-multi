@@ -35,5 +35,6 @@ dockerCompose {
         "$rootDir/mocks/docker-compose-tracing.yaml"
     )
     waitForHealthyStateTimeout.set(Duration.ofSeconds(30))
+    waitForTcpPorts.set(false) // todo: remove later
     isRequiredBy(tasks.getByName("test"))
 }

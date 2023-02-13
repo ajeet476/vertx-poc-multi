@@ -1,6 +1,6 @@
 
 DROP KEYSPACE IF EXISTS poc_users;
-CREATE KEYSPACE poc_users WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+CREATE KEYSPACE poc_users WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
 use poc_users;
 
@@ -31,4 +31,4 @@ CREATE TABLE user_login_tokens (
    created_date timestamp,
    token_data text,
    PRIMARY KEY (userid, token)
-) WITH CLUSTERING ORDER BY (added_date DESC);
+) WITH CLUSTERING ORDER BY (created_date DESC);
