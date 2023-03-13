@@ -16,7 +16,7 @@ import io.ajeet.poc.common.repository.impl.CassandraUserTokenRepository
 import io.ajeet.poc.common.tracing.SpanElement
 import io.ajeet.poc.common.tracing.TraceHelper
 import io.opentracing.Span
-import io.opentracing.Tracer
+import io.opentracing.util.GlobalTracer
 import io.vertx.cassandra.CassandraClient
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
+class MainVerticle : CoroutineVerticle() {
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
@@ -75,6 +75,7 @@ class MainVerticle(private val tracer: Tracer) : CoroutineVerticle() {
 
     private fun Route.coroutineHandler(handler: suspend (RoutingContext) -> (Unit)): Route = handler { ctx ->
         val span: Span = OpenTracingUtil.getSpan()
+        val tracer = GlobalTracer.get()
         launch(ctx.vertx().dispatcher() + SpanElement(tracer, span)) {
             TraceHelper().withContextTraced(coroutineContext, null) {
                 try {
