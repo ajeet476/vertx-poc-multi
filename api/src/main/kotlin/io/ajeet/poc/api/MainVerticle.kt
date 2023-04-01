@@ -60,6 +60,12 @@ class MainVerticle : CoroutineVerticle() {
             .requestHandler(router())
             .listen(8888)
             .await()
+        LOG.info("createHttpServer started")
+    }
+
+    override suspend fun stop() {
+        super.stop()
+        LOG.info("createHttpServer stopped")
     }
 
     private fun router(): Router {
@@ -74,6 +80,7 @@ class MainVerticle : CoroutineVerticle() {
         router.get("/health")
             .coroutineHandler { ctx -> ctx.response().end(JsonObject.of().put("status", "up").toBuffer()) }
 
+        LOG.info("routers registered")
         return router
     }
 
@@ -83,6 +90,7 @@ class MainVerticle : CoroutineVerticle() {
         launch(ctx.vertx().dispatcher() + SpanElement(tracer, span)) {
             TraceHelper().withContextTraced(coroutineContext, null) {
                 try {
+                    LOG.info("handling {}", ctx.request().path())
                     handler(ctx)
                 } catch (t: Throwable) {
                     ctx.fail(t)

@@ -1,10 +1,10 @@
 package io.ajeet.poc.api
 
+import io.jaegertracing.Configuration
+import io.opentracing.util.GlobalTracer
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.tracing.opentracing.OpenTracingOptions
-import io.jaegertracing.Configuration
-import io.opentracing.util.GlobalTracer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
