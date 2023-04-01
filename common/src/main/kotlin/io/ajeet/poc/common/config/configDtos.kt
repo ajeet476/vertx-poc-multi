@@ -8,7 +8,7 @@ class CassandraConfigs {
 }
 
 class KafkaConfigs {
-    var bootstrapServers: String = "localhost:9200"
+    var bootstrapServers: String = "localhost:9092"
     var groupId: String = "my_group"
     var autoOffsetReset: String = "earliest"
     var enableAutoCommit: String = "false"

@@ -18,6 +18,7 @@ import io.ajeet.poc.common.tracing.TraceHelper
 import io.opentracing.Span
 import io.opentracing.util.GlobalTracer
 import io.vertx.cassandra.CassandraClient
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -69,6 +70,9 @@ class MainVerticle : CoroutineVerticle() {
 
         router.get("/users/:id")
             .coroutineHandler { ctx -> userController.findUser(ctx) }
+
+        router.get("/health")
+            .coroutineHandler { ctx -> ctx.response().end(JsonObject.of().put("status", "up").toBuffer()) }
 
         return router
     }

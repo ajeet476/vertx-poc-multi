@@ -26,7 +26,7 @@ class CassandraUserTokenRepository(private val databaseClient: CassandraClient):
 
         private val INSERT_TOKEN_QUERY = """
             INSERT INTO user_login_tokens(userid, token, created_date, token_data)
-             VALUES(:userid, :token, :created_date, :token_data)
+             VALUES(':userid', ':token', ':created_date', ':token_data')
         """.trimIndent()
     }
 
