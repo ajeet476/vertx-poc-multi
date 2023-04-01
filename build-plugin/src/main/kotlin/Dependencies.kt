@@ -3,6 +3,8 @@ package io.ajeet.plugin
 object Versions {
     const val vertxVersion = "4.3.7"
     const val junitJupiterVersion = "5.7.0"
+    const val mockk = "1.13.4"
+    const val kotlinx_coroutines_test = "1.6.4"
     const val orgSlf4j = "2.0.6"
     const val jacksonDatabind = "2.14.2"
 }
@@ -26,4 +28,6 @@ object Libraries {
     const val stdlib_jdk8 = "stdlib-jdk8"
     const val vertx_junit5 = "io.vertx:vertx-junit5"
     const val junit_jupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiterVersion}"
+    const val mockk = "io.mockk:mockk:${Versions.mockk}"
+    const val kotlinx_coroutines_test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinx_coroutines_test}"
 }

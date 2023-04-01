@@ -1,67 +1,33 @@
 package io.ajeet.poc.api.controller
 
-import io.ajeet.poc.api.MainVerticle
-import io.vertx.core.CompositeFuture
-import io.vertx.core.Future
-import io.vertx.core.Vertx
-import io.vertx.core.http.HttpClientResponse
-import io.vertx.core.http.HttpMethod
-import io.vertx.junit5.VertxExtension
-import io.vertx.junit5.VertxTestContext
-import org.junit.jupiter.api.AfterAll
+import io.ajeet.poc.api.service.TokenService
+import io.mockk.*
+import io.vertx.core.buffer.Buffer
+import io.vertx.ext.web.RoutingContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Timeout
-import org.junit.jupiter.api.extension.ExtendWith
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-
-@ExtendWith(VertxExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class TokenControllerTest {
-    companion object {
-        private val LOG: Logger = LoggerFactory.getLogger("TokenControllerTest")
-
-        @BeforeAll
-        @JvmStatic
-        fun setup(vertx: Vertx, context: VertxTestContext) {
-            vertx.deployVerticle(MainVerticle(), context.succeeding {
-                LOG.info("deployed vertical")
-            })
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun cleanup(vertx: Vertx, context: VertxTestContext) {
-            LOG.info("removing vertical...")
-            val futures: List<Future<Void>> = vertx.deploymentIDs().map { id ->
-                vertx.undeploy(id)
-            }
-            CompositeFuture.join(futures).andThen(context.succeeding {
-                LOG.info("removed vertical.")
-            })
-        }
-    }
-
-    object TestServer {
-        const val PORT = 8888
-        const val HOST = "localhost"
-    }
+    private val service: TokenService = mockk()
+    private val controller = TokenController(service)
 
     @Test
-    @Timeout(2)
-    fun generateToken(vertx: Vertx, context: VertxTestContext) {
-        val client = vertx.createHttpClient()
-        client.request(HttpMethod.GET, TestServer.PORT, TestServer.HOST, "/health")
-            .compose{ req -> req.send().compose(HttpClientResponse::body)}
-            .onSuccess {
-                context.verify {
-                    assertEquals("{\"status\":\"up\"}", it.toString(), "body matches")
-                }
-            }.onFailure {
-                context.failNow(it)
-            }
+    fun generateToken() = runTest {
+        val ctx: RoutingContext = mockk()
+
+        coEvery { service.generateToken(any()) } returns TokenDto(
+            refreshToken = Token(token ="2", expiresInSeconds = 12),
+            accessToken = Token(token ="23445", expiresInSeconds = 1)
+        )
+
+        verify (exactly = 1) {
+            ctx.end(Buffer.buffer("""{"refreshToken":{"token":"2","expiresInSeconds":12},"accessToken":{"token":"23445","expiresInSeconds":1}"""))
+        }
+
+        controller.generateToken(ctx)
     }
 }

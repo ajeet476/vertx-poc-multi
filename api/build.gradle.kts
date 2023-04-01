@@ -21,6 +21,8 @@ dependencies {
 
     testImplementation(Libraries.vertx_junit5)
     testImplementation(Libraries.junit_jupiter)
+    testImplementation(Libraries.mockk)
+    testImplementation(Libraries.kotlinx_coroutines_test)
 }
 
 tasks.withType<ShadowJar> {
