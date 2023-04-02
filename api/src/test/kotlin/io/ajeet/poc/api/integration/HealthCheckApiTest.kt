@@ -6,19 +6,18 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @ExtendWith(VertxExtension::class)
-class TokenApiTest: AbstractIntegrationTest() {
+class HealthCheckApiTest: AbstractIntegrationTest() {
 
-    @Test
+    @RepeatedTest(3)
     @Timeout(2)
-    fun generateToken(vertx: Vertx, context: VertxTestContext) {
+    fun checkHealth(vertx: Vertx, context: VertxTestContext) {
         val client = vertx.createHttpClient()
-        client.request(HttpMethod.POST, TestServer.PORT, TestServer.HOST, "/token")
+        client.request(HttpMethod.GET, TestServer.PORT, TestServer.HOST, "/health")
             .compose {
                     req -> req.send().compose(HttpClientResponse::body)
             }
