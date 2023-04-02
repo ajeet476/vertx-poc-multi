@@ -16,8 +16,8 @@ class HealthCheckApiTest: AbstractIntegrationTest() {
     @RepeatedTest(3)
     @Timeout(2)
     fun checkHealth(vertx: Vertx, context: VertxTestContext) {
-        val client = vertx.createHttpClient()
-        client.request(HttpMethod.GET, TestServer.PORT, TestServer.HOST, "/health")
+        val client = vertx.createHttpClient(options)
+        client.request(HttpMethod.GET, "/health")
             .compose {
                     req -> req.send().compose(HttpClientResponse::body)
             }

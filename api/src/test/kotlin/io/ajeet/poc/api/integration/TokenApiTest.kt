@@ -17,8 +17,8 @@ class TokenApiTest: AbstractIntegrationTest() {
     @Test
     @Timeout(2)
     fun generateToken(vertx: Vertx, context: VertxTestContext) {
-        val client = vertx.createHttpClient()
-        client.request(HttpMethod.POST, TestServer.PORT, TestServer.HOST, "/token")
+        val client = vertx.createHttpClient(options)
+        client.request(HttpMethod.POST, "/token")
             .compose {
                     req -> req.send().compose(HttpClientResponse::body)
             }

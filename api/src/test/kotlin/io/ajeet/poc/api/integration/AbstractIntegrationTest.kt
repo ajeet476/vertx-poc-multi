@@ -6,6 +6,7 @@ import io.opentracing.util.GlobalTracer
 import io.vertx.core.CompositeFuture
 import io.vertx.core.Future
 import io.vertx.core.Vertx
+import io.vertx.core.http.HttpClientOptions
 import io.vertx.junit5.VertxExtension
 import io.vertx.junit5.VertxTestContext
 import org.junit.jupiter.api.AfterAll
@@ -18,6 +19,11 @@ import org.slf4j.LoggerFactory
 abstract class AbstractIntegrationTest {
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger("TokenApiTest")
+        val options = HttpClientOptions().apply {
+            defaultHost = TestServer.HOST
+            defaultPort = TestServer.PORT
+            setShared(true)
+        }
         lateinit var vertical: MainVerticle
 
         @BeforeAll
