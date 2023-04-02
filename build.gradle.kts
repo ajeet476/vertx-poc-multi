@@ -1,11 +1,14 @@
 import io.ajeet.plugin.Libraries
-import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.7.21"
     id("com.github.johnrengelman.shadow") version "7.0.0" apply false
     id("com.avast.gradle.docker-compose") version "0.16.11" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
 }
 
 buildscript {
@@ -51,5 +54,12 @@ subprojects {
         testLogging {
             events = setOf(PASSED, SKIPPED, FAILED)
         }
+
+        setEnvironment(
+            "JAEGER_SERVICE_NAME" to "testapp",
+            "JAEGERJAEGER_PROPAGATION" to "B3",
+            "JAEGER_SAMPLER_TYPE" to "const",
+            "JAEGER_SAMPLER_PARAM" to "0.0"
+        )
     }
 }

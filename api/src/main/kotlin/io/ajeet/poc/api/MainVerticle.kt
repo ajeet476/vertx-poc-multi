@@ -85,8 +85,10 @@ class MainVerticle : CoroutineVerticle() {
     }
 
     private fun Route.coroutineHandler(handler: suspend (RoutingContext) -> (Unit)): Route = handler { ctx ->
-        val span: Span = OpenTracingUtil.getSpan()
         val tracer = GlobalTracer.get()
+
+        val span: Span = OpenTracingUtil.getSpan() ?: tracer.buildSpan(ctx.request().absoluteURI()).start()
+
         launch(ctx.vertx().dispatcher() + SpanElement(tracer, span)) {
             TraceHelper().withContextTraced(coroutineContext, null) {
                 try {
