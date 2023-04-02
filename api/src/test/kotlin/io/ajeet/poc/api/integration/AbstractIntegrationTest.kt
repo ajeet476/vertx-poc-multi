@@ -18,13 +18,15 @@ import org.slf4j.LoggerFactory
 abstract class AbstractIntegrationTest {
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger("TokenApiTest")
+        lateinit var vertical: MainVerticle
 
         @BeforeAll
         @JvmStatic
         fun setup(vertx: Vertx, context: VertxTestContext) {
+            vertical = MainVerticle()
             val tracer = Configuration.fromEnv().tracer
             GlobalTracer.registerIfAbsent(tracer)
-            vertx.deployVerticle(MainVerticle(), context.succeeding {
+            vertx.deployVerticle(vertical, context.succeeding {
                 LOG.info("deployed vertical")
                 context.completeNow()
             })
